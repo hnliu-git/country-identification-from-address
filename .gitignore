@@ -1,4 +1,4 @@
 .idea
-.res
-.data/dataset
-.data/openaddr-collected-europe
+res
+data/dataset
+data/openaddr-collected-europe
