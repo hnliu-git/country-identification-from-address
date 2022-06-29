@@ -37,7 +37,7 @@ if __name__ == '__main__':
         gpus=1,
         plugins=[HgCkptIO()],
         max_epochs=epochs,
-        # logger=wandb_logger,
+        logger=wandb_logger,
         # callbacks=[ckpt_callback]
     )
 
