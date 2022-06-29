@@ -6,6 +6,7 @@ from models.rule_model import *
 from models.stat_model import *
 from preset import code2country
 from torch.utils.data import DataLoader
+from pytorch_lightning.loggers import WandbLogger
 
 if __name__ == '__main__':
 
@@ -29,7 +30,11 @@ if __name__ == '__main__':
     #              % (args.model.split('/')[-1]),
     # )
 
+    # Logger
+    wandb_logger = WandbLogger(project='text-kernel', name='test')
+
     trainer = pl.Trainer(
+        gpus=1,
         plugins=[HgCkptIO()],
         max_epochs=epochs,
         # logger=wandb_logger,
