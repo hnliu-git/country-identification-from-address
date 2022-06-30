@@ -21,4 +21,3 @@ code2country = {
 country2code = {v: k for k, v in code2country.items()}
 
 code2id = {code: i for i, code in enumerate(sorted(code2country.keys()))}
-code2id['UN'] = len(code2country)

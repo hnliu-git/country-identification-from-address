@@ -2,7 +2,6 @@
 Statistical model for the country identification
 """
 
-import torch
 import pandas as pd
 import pytorch_lightning as pl
 import torch.utils.data
@@ -97,7 +96,7 @@ class HgCkptIO(CheckpointIO):
             fs.rm(path, recursive=True)
 
 
-class StatModel(LightningModule):
+class StatTrainer(LightningModule):
 
     def __init__(self, countries, model, num_training_steps):
         super().__init__()
@@ -167,3 +166,60 @@ class StatModel(LightningModule):
             For the customized CheckpointIO
         """
         checkpoint['hg_model'] = self.model
+
+
+class StatModel:
+
+    def __init__(self, model_path, countries):
+        self.id2code = {i: code.upper() for i, code in enumerate(sorted(countries))}
+        self.model = AutoModelForSequenceClassification.from_pretrained(model_path)
+        self.tokenizer = AutoTokenizer.from_pretrained(model_path)
+
+        assert len(countries) == self.model.config.num_labels
+
+    def __call__(self, address):
+        X = self.tokenizer(address, truncation=True, padding='max_length', max_length=128, return_tensors='pt')
+        with torch.no_grad():
+            out = self.model(**X)
+            scores = torch.softmax(out.logits, dim=1).squeeze()
+
+        return {code: scores[i].item() for i, code in self.id2code.items()}
+
+
+if __name__ == '__main__':
+    from preset import code2country
+    from torch.utils.data import DataLoader
+    from pytorch_lightning.loggers import WandbLogger
+    from pytorch_lightning.callbacks import ModelCheckpoint
+
+    epochs = 10
+    batch_size = 32
+    s_model_name = 'nreimers/mMiniLMv2-L6-H384-distilled-from-XLMR-Large'
+
+    train_data = TextDFData(sorted(code2country.keys()), s_model_name, 'train')
+    val_data = TextDFData(sorted(code2country.keys()), s_model_name, 'val')
+
+    train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True, collate_fn=TextDFData.collate_fn)
+    val_loader = DataLoader(val_data, batch_size=batch_size, shuffle=False, collate_fn=TextDFData.collate_fn)
+
+    s_model = StatTrainer(sorted(code2country.keys()), s_model_name, train_data.steps_per_epoch(batch_size) * epochs)
+
+    ckpt_callback = ModelCheckpoint(
+        dirpath='ckpts',
+        monitor='val_loss',
+        save_top_k=2,
+        mode='min',
+        filename="{epoch:02d}-{val_loss:.2f}",
+    )
+
+    wandb_logger = WandbLogger(project='text-kernel', name='test')
+
+    trainer = pl.Trainer(
+        gpus=1,
+        plugins=[HgCkptIO()],
+        max_epochs=epochs,
+        logger=wandb_logger,
+        callbacks=[ckpt_callback]
+    )
+
+    trainer.fit(s_model, train_loader, val_loader)

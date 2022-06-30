@@ -24,6 +24,7 @@ class RuleModel:
                         city2codes[line.lower()].add(country_code)
             city2codes.pop('city')
 
+        self.country_codes = country_codes
         self.city2codes = city2codes
         self.country_set = set(code2country[code].lower() for code in country_codes)
 
@@ -73,8 +74,16 @@ class RuleModel:
 
         if len(code_cot) == 0:
             # No match found
-            return {}
+            return {code.upper(): 0.0 for code in self.country_codes}
         else:
             # Calculate confidence score
             score_sum = sum(code_cot.values())
-            return {code: score / score_sum for code, score in code_cot.items()}
+            res = {}
+            for code in self.country_codes:
+                code = code.upper()
+                if code in code_cot:
+                    res[code] = code_cot[code] / score_sum
+                else:
+                    res[code] = 0.0
+
+            return res

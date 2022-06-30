@@ -3,7 +3,6 @@ Evaluation on the test set and latency
 """
 
 import pandas as pd
-from preset import code2id
 from tqdm import tqdm
 
 
@@ -19,18 +18,21 @@ class Evaluator:
     def evaluate_metrics(self, model):
         from sklearn.metrics import accuracy_score
         from sklearn.metrics import confusion_matrix
+        from preset import code2id
 
         import seaborn as sns
         import matplotlib.pyplot as plt
 
         y_preds = []
         y_trues = []
+        code2id['UN'] = len(code2id)
+
         for i in tqdm(range(len(self.df_test))):
             address = self.df_test.iloc[i]['address']
             country = self.df_test.iloc[i]['country']
 
             pred_dict = model(address)
-            if len(pred_dict) == 0:
+            if sum(pred_dict.values()) == 0:
                 # no prediction
                 y_pred = 'UN'
             else:
