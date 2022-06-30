@@ -1,3 +1,8 @@
+"""
+A rule-based model for country identification given address.
+"""
+
+
 import re
 from preset import code2country, country2code
 
@@ -37,8 +42,7 @@ class RuleModel:
         :param address: str - the address to be identified
         :return: dict(code, score) - dict of country code with confidence
         """
-        assert isinstance(address, str) and len(address) > 0
-        # Preprocess address
+        # Preprocess address and
         address = address.lower()
         address = address.replace(' - ', ',')
 

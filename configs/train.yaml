@@ -1,0 +1,11 @@
+# Countries
+countries: ['FR', 'DE', 'NL', 'BE', 'PL', 'PT', 'IT', 'CZ', 'EE', 'SK', 'SI', 'SE', 'AT', 'LU', 'RO']
+
+# Training settings
+epochs: 10
+batch_size: 32
+model_name: 'nreimers/mMiniLMv2-L6-H384-distilled-from-XLMR-Large'
+
+# For wandb
+project: 'country-identification'
+exp: 'mMiniLMv2-country14'

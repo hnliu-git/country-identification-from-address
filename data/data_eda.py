@@ -1,6 +1,12 @@
+"""
+Some basic EDA
+"""
+
+
 import json
 import pandas as pd
 import matplotlib.pyplot as plt
+
 
 def jsonl2df(jsonl_path):
     """
@@ -11,21 +17,13 @@ def jsonl2df(jsonl_path):
 
     return pd.DataFrame(data)
 
+
 if __name__ == '__main__':
-    df = jsonl2df('data/dataset/cities.jsonl')
-
-    df['len(city)'] = df['city'].apply(len)
-    print(df[df['len(city)'] < 3])
-    print(df[['len(city)']].describe())
-    plt.hist(df['len(city)'], bins=100)
-    plt.show()
-    exit()
-
-
+    df = jsonl2df('dataset/cities.jsonl')
 
     label_dict = {}
     adds_len = {}
-
+    # Length of addressses and labels distribution
     with open('dataset/addresses.jsonl') as rf:
         for line in rf:
             country = json.loads(line)['country']
@@ -47,3 +45,13 @@ if __name__ == '__main__':
     plt.xlim(0, 80)
     plt.show()
 
+    label_dict = {k: 0 for k, _ in label_dict}
+
+    for code in label_dict.keys():
+        label_dict[code] += len(pd.read_csv(f'train/{code}.csv', sep='\t'))
+        label_dict[code] += len(pd.read_csv(f'val/{code}.csv', sep='\t'))
+        label_dict[code] += len(pd.read_csv(f'test/{code}.csv', sep='\t'))
+
+    label_dict = sorted(label_dict.items(), key=lambda x: x[1], reverse=True)
+    plt.bar([x[0] for x in label_dict], [x[1] for x in label_dict])
+    plt.show()

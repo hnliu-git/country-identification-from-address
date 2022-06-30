@@ -1,5 +1,5 @@
 """
-Evaluation on the test set and latency
+Offline evaluation of the model.
 """
 
 import pandas as pd
@@ -59,4 +59,49 @@ class Evaluator:
         for i in range(len(sample)):
             model(self.df_test.iloc[i]['address'])
         print(f'Average latency per item: {((time.time() - st) / n)*1000:2f}ms')
+
+
+if __name__ == '__main__':
+
+    from models.rule_model import *
+    from models.stat_model import *
+    from preset import code2country
+
+    class CombModel:
+        def __init__(self, model1, model2):
+            self.model1 = model1
+            self.model2 = model2
+
+        def __call__(self, address):
+            pred_dict1 = self.model1(address)
+            pred_dict2 = self.model2(address)
+            pred_dict = {}
+            for key in pred_dict1:
+                pred_dict[key] = pred_dict1[key] + pred_dict2[key]
+            return pred_dict
+
+    s_model_path = 'ckpts/epoch04-val_loss0.92-coun14/'
+    r_model = RuleModel(code2country.keys())
+    s_model = StatModel(s_model_path, code2country.keys())
+    comb_model = CombModel(r_model, s_model)
+
+    evaluator = Evaluator(code2country.keys())
+
+    # Evaluate metrics
+    evaluator.evaluate_metrics(r_model)
+
+    # Evaluate latency
+    evaluator.evaluate_latency(r_model, n=100)
+
+    # Evaluate metrics
+    evaluator.evaluate_metrics(s_model)
+
+    # Evaluate latency
+    evaluator.evaluate_latency(s_model, n=100)
+
+    # Evaluate metrics
+    evaluator.evaluate_metrics(comb_model)
+
+    # Evaluate latency
+    evaluator.evaluate_latency(comb_model, n=100)
 

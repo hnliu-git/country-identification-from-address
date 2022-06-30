@@ -1,0 +1,2 @@
+s_model: 'ckpts/epoch04-val_loss0.92-coun14/'
+countries: ['FR', 'DE', 'NL', 'BE', 'PL', 'PT', 'IT', 'CZ', 'EE', 'SK', 'SI', 'SE', 'AT', 'LU', 'RO']
