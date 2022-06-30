@@ -10,7 +10,7 @@ Original dataset from [OpenAddresses](https://batch.openaddresses.io/data).
 - The distribution of the number of countries is not balanced.
 
 <div style="text-align: center;">
-    <img src="res/label.png" width="300">
+    <img src="imgs/label.png" width="300">
 </div>
 
 The number of addresses from Romania is only a few hundred addresses, 
@@ -45,7 +45,7 @@ My goal is to prepare a balanced dataset with the following ideas:
 Details refer to the [data_prepare.py](data/data_prepare.py) file. Distribution after this process is shown as below:
 
 <div style="text-align: center;">
-    <img src="res/post_label.png" width="300">
+    <img src="imgs/post_label.png" width="300">
 </div>
 
 ## Model
@@ -97,17 +97,17 @@ Results shown in the following table.
 
 Confusion matrix of the rule based model:
 <div style="text-align: center;">
-    <img src="res/r_res.png" width="300">
+    <img src="imgs/r_res.png" width="300">
 </div>
 
 Confusion matrix of the statistical based model:
 <div style="text-align: center;">
-    <img src="res/s_res.png" width="300">
+    <img src="imgs/s_res.png" width="300">
 </div>
 
 Confusion matrix of the combined based model:
 <div style="text-align: center;">
-    <img src="res/c_res.png" width="300">
+    <img src="imgs/c_res.png" width="300">
 </div>
 
 ## How to Run
