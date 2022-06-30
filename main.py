@@ -7,6 +7,7 @@ from models.stat_model import *
 from preset import code2country
 from torch.utils.data import DataLoader
 from pytorch_lightning.loggers import WandbLogger
+from pytorch_lightning.callbacks import ModelCheckpoint
 
 if __name__ == '__main__':
 
@@ -22,13 +23,13 @@ if __name__ == '__main__':
 
     s_model = StatModel(sorted(code2country.keys()), s_model_name, train_data.steps_per_epoch(batch_size)*epochs)
 
-    # ckpt_callback = ModelCheckpoint(
-    #     dirpath=args.ckpt_path,
-    #     monitor='val_loss',
-    #     mode='min',
-    #     filename="%s-{epoch:02d}-{val_loss:.2f}"
-    #              % (args.model.split('/')[-1]),
-    # )
+    ckpt_callback = ModelCheckpoint(
+        dirpath='ckpts',
+        monitor='val_loss',
+        save_top_k=2,
+        mode='min',
+        filename="{epoch:02d}-{val_loss:.2f}",
+    )
 
     # Logger
     wandb_logger = WandbLogger(project='text-kernel', name='test')
@@ -38,7 +39,7 @@ if __name__ == '__main__':
         plugins=[HgCkptIO()],
         max_epochs=epochs,
         logger=wandb_logger,
-        # callbacks=[ckpt_callback]
+        callbacks=[ckpt_callback]
     )
 
     trainer.fit(s_model, train_loader, val_loader)

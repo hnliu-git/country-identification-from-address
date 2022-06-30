@@ -144,7 +144,7 @@ class StatModel(LightningModule):
 
     def training_step(self, batch, idx):
         loss = self(batch).loss
-        self.log("pred:nll", loss, logger=True)
+        self.log("trn_loss", loss, logger=True)
         return loss
 
     def validation_step(self, batch, idx):
