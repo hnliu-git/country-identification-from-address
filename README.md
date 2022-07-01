@@ -92,8 +92,8 @@ Results shown in the following table.
 |          Model          | Accuracy | Latency |
 |:-----------------------:|:--------:|:-------:|
 |    Rule Based Model     |   0.81   |  20ms   |
-| Statistical Model (CPU) |   0.9    |  71ms   |
-|     Combined Model      |   0.9    |  95ms   |
+| Statistical Model (CPU) |   0.86   |  71ms   |
+|     Combined Model      |   0.96   |  95ms   |
 
 Confusion matrix of the rule based model:
 <div style="text-align: center;">
@@ -128,7 +128,12 @@ the following command can be used to train the statistical model:
 ```
 python3 models/stat_model.py
 ```
+Both the models can be evaluated offline using the [evaluator.py](evaluator.py) file.
+```
+python3 evaluator.py
+```
 
+After setting up the [service.yaml](configs/service.yaml) file, 
 The server can be started using the following command:
 ```
 uvicorn server.server:app --host 0.0.0.0 --port 8080
@@ -139,6 +144,41 @@ Alternatively, a docker image can be created using the following command:
 docker build -t address-classification .
 docker run -p 8080:8080 -it address-classification
 ```
+
+The web service can be tested using the [tester.py](tester.py) file:
+
+
+The service can be accessed by sending a POST request:
+```python
+import requests
+requests.post(f"http://localhost:8080/rule/", json={"address": "burgemeester van de pollstraat 120-h amsterdam"})
+```
+
+## Future Work
+
+### Improve the efficiency of the rule based model
+
+The main idea of the model can be regarded as a search problem. 
+There are lots of space for improvement, such as: 
+- Binary search for the city name in the address
+- Use a more efficient data structure to store the city names and their corresponding countries
+
+### Introduce more data or re-split the data carefully for statistical model
+
+From some simple test cases, it seems that the model cannot perform well on the addresses of cities that is
+not in the training set:
+
+```python
+import requests
+requests.post(f"http://localhost:8080/stat/",
+              json={"address": "Römerstraße 118, 53117 Bonn"}).json()
+>> {'country': 'Austria', 'score': 0.5825262665748596}
+```
+
+Solutions include:
+1. Find more data covered cities as much as possible in a country
+2. Use the generator to generate data of each city in a country,
+   avoid putting addresses from a city in both training and evaluation set.
 
 
 

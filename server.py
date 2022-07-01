@@ -50,7 +50,6 @@ def comb_model(request: Request):
     s_dict = s_model(request.address)
     r_dict = r_model(request.address)
     for k, v in s_dict.items():
-        # The score from the rule-based model might be too high
         r_dict[k] += v
     code = max(r_dict, key=r_dict.get)
     return {'country': code2country[code], 'score': r_dict[code]}
